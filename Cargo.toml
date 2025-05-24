@@ -3,6 +3,7 @@ name = "cucumber-thirtyfour-worlder"
 description = "World builder with sensible defaults for cucumber integration with thirtyfour."
 version = "0.1.0"
 edition = "2024"
+license = "MIT"
 
 [lib]
 path = "src/lib.rs"

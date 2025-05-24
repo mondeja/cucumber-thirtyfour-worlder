@@ -3,6 +3,7 @@ name = "cucumber-thirtyfour-worlder-docref"
 description = "Reference for documentation of cucumber-thirtyfour-worlder."
 version = "0.1.0"
 edition = "2024"
+license = "MIT"
 
 [dependencies]
 cucumber = "0.21"
