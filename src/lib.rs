@@ -2,14 +2,14 @@
 //! [![License](https://img.shields.io/crates/l/cucumber-thirtyfour-worlder?logo=mit)](https://github.com/mondeja/cucumber-thirtyfour-worlder/blob/master/LICENSE)
 //! [![Tests](https://img.shields.io/github/actions/workflow/status/mondeja/cucumber-thirtyfour-worlder/ci.yml?label=tests&logo=github)](https://github.com/mondeja/cucumber-thirtyfour-worlder/actions)
 //! [![macro docs.rs](https://img.shields.io/docsrs/cucumber-thirtyfour-worlder?logo=docs.rs)](https://docs.rs/cucumber-thirtyfour-worlder)
-//! [![reference docs.rs](https://img.shields.io/docsrs/cucumber-thirtyfour-worlder?logo=docs.rs)](https://docs.rs/cucumber-thirtyfour-worlder-docref)
+//! [![reference docs.rs](https://img.shields.io/docsrs/cucumber-thirtyfour-worlder?logo=docs.rs&label=world%20reference)][appworld-reference]
 //! [![Crates.io downloads](https://img.shields.io/crates/d/cucumber-thirtyfour-worlder)](https://crates.io/crates/cucumber-thirtyfour-worlder)
 //!
 //! Do you need to reuse a bunch of logic between different projects testing
-//! apps with [Cucumber] and [Thirtyfour]? This crate is for you.
+//! apps with [cucumber-rs] and [thirtyfour]? This crate is for you.
 //!
-//! Provides a `cucumber::World` builder that can be used to create a `World`
-//! for thirtyfour tests, allowing to inject environment variables to
+//! Provides a [`cucumber::World`] builder that can be used to create an
+//! `AppWorld` for thirtyfour tests, allowing to inject environment variables to
 //! parametrize them.
 //!
 //! - `BROWSER`: browser to use. Supported are `firefox`, `chrome`, and `edge`.
@@ -40,6 +40,8 @@
 //! #[worlder]
 //! pub struct AppWorld;
 //! ```
+//!
+//! > See the reference of the created world [here][appworld-reference].
 //!
 //! Then, create a crate for tests and run the world as you would do with
 //! `cucumber::World` directly.
@@ -87,6 +89,10 @@
 //! ignored = ["thirtyfour", "cucumber"]
 //! ```
 //!
+//! [cucumber-rs]: https://cucumber-rs.github.io/cucumber/main/
+//! [thirtyfour]: https://docs.rs/thirtyfour/latest/thirtyfour/
+//! [`cucumber::World`]: https://docs.rs/cucumber/latest/cucumber/trait.World.html
+//! [appworld-reference]: https://docs.rs/cucumber-thirtyfour-worlder-docref
 //! [`cargo-machete`]: https://github.com/bnjbvr/cargo-machete
 
 use proc_macro2::{TokenStream, TokenTree};
