@@ -44,7 +44,7 @@
 //! > See the reference of the created world [here][appworld-reference].
 //!
 //! Then, create a crate for tests and run the world as you would do with
-//! `cucumber::World` directly.
+//! [`cucumber::World`] directly.
 //!
 //! ```rust,ignore
 //! use your_crate::AppWorld;
