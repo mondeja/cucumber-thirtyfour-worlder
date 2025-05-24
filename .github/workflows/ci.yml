@@ -100,7 +100,7 @@ jobs:
       '${{ github.event.pull_request.user.login }}' == 'mondeja' ||
       startsWith(github.ref, 'refs/tags/') ||
       github.ref == 'refs/heads/master'
-    name: Test crate publishing
+    name: Test cucumber-thirtyfour-worlder crate publishing
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -114,9 +114,9 @@ jobs:
           cargo login ${{ secrets.CRATES_TOKEN }}
           cargo publish -v --dry-run
 
-  release:
+  release-cucumber-thirtyfour-worlder:
     if: startsWith(github.ref, 'refs/tags/')
-    name: Publish crate
+    name: Publish cucumber-thirtyfour-worlder crate
     needs: test-release
     runs-on: ubuntu-latest
     steps:
@@ -131,10 +131,32 @@ jobs:
           cargo login ${{ secrets.CRATES_TOKEN }}
           cargo publish -v
 
+  release-cucumber-thirtyfour-worlder-docref:
+    if: startsWith(github.ref, 'refs/tags/')
+    name: Publish cucumber-thirtyfour-worlder-docref crate
+    needs: test-release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Rust
+        uses: hecrj/setup-rust-action@v2
+        with:
+          rust-version: stable
+          profile: minimal
+      - name: Get project version
+        id: version
+        uses: ./.github/actions/get-version
+      - name: Update version
+        run: sed -i "s/^cucumber-thirtyfour-worlder.*/cucumber-thirtyfour-worlder = \"=${{ steps.version.outputs.version }}\"/" docref/Cargo.toml
+      - name: Publish
+        run: |
+          cargo login ${{ secrets.CRATES_TOKEN }}
+          cargo publish -v
+
   create-release:
     if: startsWith(github.ref, 'refs/tags/')
     name: Create release
-    needs: release
+    needs: release-cucumber-thirtyfour-worlder-docref
     permissions:
       contents: write
     runs-on: ubuntu-latest
@@ -156,4 +178,3 @@ jobs:
             See [CHANGELOG](https://github.com/mondeja/cucumber-thirtyfour-worlder/blob/master/CHANGELOG.md).
           draft: false
           prerelease: false
-          files: ./dist/*
