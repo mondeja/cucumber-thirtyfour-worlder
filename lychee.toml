@@ -1,0 +1,5 @@
+exclude = [
+  '^https://github\.com/mondeja/cucumber-thirtyfour-worlder/compare',
+  '^https://docs\.rs/cucumber-thirtyfour-worlder'
+]
+exclude_path = ["lychee.toml"]
