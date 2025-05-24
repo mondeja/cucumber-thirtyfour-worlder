@@ -32,7 +32,8 @@
 //! cucumber-thirtyfour-worlder = "0.1"
 //! ```
 //!
-//! Inside, create your `AppWorld` struct and pass it the `#[worlder]` attribute.
+//! Inside, create your [`AppWorld`][appworld-reference] struct and pass
+//! it the [`#[worlder]`][worlder] attribute.
 //!
 //! ```rust,ignore
 //! use cucumber_thirtyfour_worlder::worlder;
@@ -47,6 +48,7 @@
 //! [`cucumber::World`] directly.
 //!
 //! ```rust,ignore
+//! // tests/desktop.rs
 //! use your_crate::AppWorld;
 //! use cucumber::World;
 //!
@@ -74,14 +76,14 @@
 //! ```
 //!
 //! Where `desktop` is the name of your test file and `your-crate` is the name of
-//! the crate that contains the `AppWorld` struct.
+//! the crate that contains the [`AppWorld`][appworld-reference] struct.
 //!
 //! # Known issues
 //!
-//! ## `cargo-machete` additional configuration
+//! ## Additional configuration for cargo-machete
 //!
-//! The [`cargo-machete`] tool don't know that you're not using `cucumber` and
-//! `thirtyfour`, so it could complain about missing dependencies.
+//! The [`cargo-machete`][cargo-machete] tool don't know that you're not using
+//! `cucumber` and `thirtyfour`, so it could complain about missing dependencies.
 //! To fix this, add the following to your _Cargo.toml_.
 //!
 //! ```toml
@@ -92,13 +94,19 @@
 //! [cucumber-rs]: https://cucumber-rs.github.io/cucumber/main/
 //! [thirtyfour]: https://docs.rs/thirtyfour/latest/thirtyfour/
 //! [`cucumber::World`]: https://docs.rs/cucumber/latest/cucumber/trait.World.html
-//! [appworld-reference]: https://docs.rs/cucumber-thirtyfour-worlder-docref
-//! [`cargo-machete`]: https://github.com/bnjbvr/cargo-machete
+//! [appworld-reference]: https://docs.rs/cucumber-thirtyfour-worlder-docref/latest/cucumber_thirtyfour_worlder_docref/struct.AppWorld.html
+//! [worlder]: https://docs.rs/cucumber-thirtyfour-worlder/latest/cucumber_thirtyfour_worlder/attr.worlder.html
+//! [cargo-machete]: https://github.com/bnjbvr/cargo-machete
 
 use proc_macro2::{TokenStream, TokenTree};
 use quote::quote;
 
-/// Attribute macro to build `World` struct for the app to test
+/// Attribute macro to build [`cucumber::World`] struct for the app to test.
+///
+/// See the reference of the created world [here][appworld-reference].
+///
+/// [`cucumber::World`]: https://docs.rs/cucumber/latest/cucumber/trait.World.html
+/// [appworld-reference]: https://docs.rs/cucumber-thirtyfour-worlder-docref/latest/cucumber_thirtyfour_worlder_docref/struct.AppWorld.html
 #[proc_macro_attribute]
 pub fn worlder(
     _attr: proc_macro::TokenStream,
@@ -108,11 +116,30 @@ pub fn worlder(
         panic!("#[worlder] macro requires a struct to be passed");
     }
 
+    let mut before_struct = TokenStream::new();
     let original_struct = TokenStream::from(stream.clone());
 
     let mut token_stream_iter = original_struct.into_iter();
+    let length = token_stream_iter.clone().count();
 
-    let maybe_item_1 = token_stream_iter.next();
+    // Allow whatever before the struct definition.
+    // This is needed if we want to add attributes to the struct,
+    // like documenting it.
+    let mut maybe_item_1 = None;
+    for _ in 0..length {
+        let item = token_stream_iter.next();
+        if let Some(item) = item {
+            let item_clone = item.clone();
+            if let TokenTree::Ident(ident) = { item_clone } {
+                let ident_str = ident.to_string();
+                if &ident_str == "pub" || ident_str.starts_with("pub(") || &ident_str == "struct" {
+                    maybe_item_1 = Some(TokenTree::Ident(ident));
+                    break;
+                }
+            }
+            before_struct.extend(std::iter::once(item));
+        }
+    }
     let maybe_item_2 = token_stream_iter.next();
     let maybe_item_3 = token_stream_iter.next();
     let maybe_item_4 = token_stream_iter.next();
@@ -187,7 +214,7 @@ pub fn worlder(
         extern crate thirtyfour;
         use thirtyfour::prelude::*;
 
-
+        #before_struct
         #[derive(Debug, ::cucumber::World)]
         #[world(init = Self::new)]
         #vis_ident #struct_ident #struct_name_ident {
@@ -211,24 +238,32 @@ pub fn worlder(
             }
 
             #[doc = r" Get the driver URL of the world"]
+            #[doc = r" "]
+            #[doc = r" It's defined by the `DRIVER_URL` environment variable, which defaults to `http://localhost:4444`."]
             #[must_use]
             pub fn driver_url(&self) -> &str {
                 &self.driver_url
             }
 
             #[doc = r" Get the host URL of the world"]
+            #[doc = r" "]
+            #[doc = r" It's defined by the `HOST_URL` environment variable, which defaults to `http://localhost:8080`."]
             #[must_use]
             pub fn host_url(&self) -> &str {
                 &self.host_url
             }
 
             #[doc = r" Get the headless mode of the world"]
+            #[doc = r" "]
+            #[doc = r" It's defined by the `HEADLESS` environment variable, which defaults to `true`."]
             #[must_use]
             pub fn headless(&self) -> bool {
                 self.headless
             }
 
             #[doc = r" Get the window size of the world"]
+            #[doc = r" "]
+            #[doc = r" It's defined by the `WINDOW_SIZE` environment variable, which defaults to `1920x1080`."]
             #[must_use]
             pub fn window_size(&self) -> (u32, u32) {
                 self.window_size
