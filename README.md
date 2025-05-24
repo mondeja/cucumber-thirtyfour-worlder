@@ -39,7 +39,8 @@ thirtyfour = "0.35"
 cucumber-thirtyfour-worlder = "0.1"
 ```
 
-Inside, create your `AppWorld` struct and pass it the `#[worlder]` attribute.
+Inside, create your [`AppWorld`][appworld-reference] struct and pass
+it the [`#[worlder]`][worlder] attribute.
 
 ```rust
 use cucumber_thirtyfour_worlder::worlder;
@@ -54,6 +55,7 @@ Then, create a crate for tests and run the world as you would do with
 [`cucumber::World`] directly.
 
 ```rust
+// tests/desktop.rs
 use your_crate::AppWorld;
 use cucumber::World;
 
@@ -81,14 +83,14 @@ BROWSER=chrome cargo test --package your-crate --test desktop -- --fail-fast
 ```
 
 Where `desktop` is the name of your test file and `your-crate` is the name of
-the crate that contains the `AppWorld` struct.
+the crate that contains the [`AppWorld`][appworld-reference] struct.
 
 ## Known issues
 
-### `cargo-machete` additional configuration
+### Additional configuration for cargo-machete
 
-The [`cargo-machete`] tool don't know that you're not using `cucumber` and
-`thirtyfour`, so it could complain about missing dependencies.
+The [`cargo-machete`][cargo-machete] tool don't know that you're not using
+`cucumber` and `thirtyfour`, so it could complain about missing dependencies.
 To fix this, add the following to your _Cargo.toml_.
 
 ```toml
@@ -99,5 +101,6 @@ ignored = ["thirtyfour", "cucumber"]
 [cucumber-rs]: https://cucumber-rs.github.io/cucumber/main/
 [thirtyfour]: https://docs.rs/thirtyfour/latest/thirtyfour/
 [`cucumber::World`]: https://docs.rs/cucumber/latest/cucumber/trait.World.html
-[appworld-reference]: https://docs.rs/cucumber-thirtyfour-worlder-docref
-[`cargo-machete`]: https://github.com/bnjbvr/cargo-machete
+[appworld-reference]: https://docs.rs/cucumber-thirtyfour-worlder-docref/latest/cucumber_thirtyfour_worlder_docref/struct.AppWorld.html
+[worlder]: https://docs.rs/cucumber-thirtyfour-worlder/latest/cucumber_thirtyfour_worlder/attr.worlder.html
+[cargo-machete]: https://github.com/bnjbvr/cargo-machete

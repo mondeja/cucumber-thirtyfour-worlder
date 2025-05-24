@@ -150,6 +150,7 @@ jobs:
         run: sed -i "s/^cucumber-thirtyfour-worlder.*/cucumber-thirtyfour-worlder = \"=${{ steps.version.outputs.version }}\"/" docref/Cargo.toml
       - name: Publish
         run: |
+          cd docref
           cargo login ${{ secrets.CRATES_TOKEN }}
           cargo publish -v
 
