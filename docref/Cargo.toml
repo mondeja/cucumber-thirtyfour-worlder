@@ -1,0 +1,10 @@
+[package]
+name = "cucumber-thirtyfour-worlder-docref"
+description = "Reference for documentation of cucumber-thirtyfour-worlder."
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+cucumber = "0.21"
+thirtyfour = "0.35"
+cucumber-thirtyfour-worlder = { path = ".." }
