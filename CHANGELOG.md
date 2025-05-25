@@ -4,7 +4,16 @@
 
 ### New features
 
-- Add `check_concurrency_cli_option_when_firefox` argument to `#[worlder]` macro.
+- Add `check_concurrency_cli_option_when_firefox` argument to `#[worlder]`
+  macro.
+- Add `cucumber` argument to `#[worlder]` macro to allow passing an in-scope
+  `cucumber` crate.
+- Add `thirtyfour` argument to `#[worlder]` macro to allow passing an in-scope
+  `thirtyfour` crate.
+
+### Enhancements
+
+- Stop polluting the scope of the `#[worlder]` macro calling site.
 
 ## 2025-05-25 - [0.1.3]
 

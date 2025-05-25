@@ -1,4 +1,5 @@
-use cucumber_thirtyfour_worlder::worlder;
+use cucumber;
+use thirtyfour;
 
 /// Example of a struct for a world derived with the [`#[worlder]`][worlder] macro.
 ///
@@ -15,5 +16,9 @@ use cucumber_thirtyfour_worlder::worlder;
 /// ```
 ///
 /// [worlder]: https://docs.rs/cucumber-thirtyfour-worlder/latest/cucumber_thirtyfour_worlder/attr.worlder.html
-#[worlder(check_concurrency_cli_option_when_firefox = true)]
+#[cucumber_thirtyfour_worlder::worlder(
+    check_concurrency_cli_option_when_firefox = true,
+    cucumber = cucumber,
+    thirtyfour = thirtyfour,
+)]
 pub struct AppWorld;
