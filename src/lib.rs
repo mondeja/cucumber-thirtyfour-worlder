@@ -98,10 +98,27 @@
 //! [worlder]: https://docs.rs/cucumber-thirtyfour-worlder/latest/cucumber_thirtyfour_worlder/attr.worlder.html
 //! [cargo-machete]: https://github.com/bnjbvr/cargo-machete
 
+#[cfg(test)]
+mod tests;
+
+use core::panic;
+
 use proc_macro2::{TokenStream, TokenTree};
 use quote::quote;
+use syn::{
+    parse::{Parse, ParseStream},
+    parse_macro_input,
+};
 
 /// Attribute macro to build [`cucumber::World`] struct for the app to test.
+///
+/// Accept the next named arguments:
+///
+/// - `check_concurrency_cli_option_when_firefox` (*bool*, default `true`): when enabled,
+///   the implementation will check if the `--concurrency` or `-c` CLI option is set
+///   to `1` invoking cucumber tests when using Firefox. Multiple sessions in parallel
+///   are not allowed by geckodriver and this limitation is easy to forget, hence this
+///   convenient argument.
 ///
 /// See the reference of the created world [here][appworld-reference].
 ///
@@ -109,12 +126,22 @@ use quote::quote;
 /// [appworld-reference]: https://docs.rs/cucumber-thirtyfour-worlder-docref/latest/cucumber_thirtyfour_worlder_docref/struct.AppWorld.html
 #[proc_macro_attribute]
 pub fn worlder(
-    _attr: proc_macro::TokenStream,
+    args: proc_macro::TokenStream,
     stream: proc_macro::TokenStream,
 ) -> proc_macro::TokenStream {
     if stream.is_empty() {
         panic!("#[worlder] macro requires a struct to be passed");
     }
+
+    let args = parse_macro_input!(args as WorlderArgs);
+    let check_concurrency_cli_option_when_firefox =
+        if args.check_concurrency_cli_option_when_firefox {
+            quote! {
+                Self::__check_firefox_concurrency_cli_option();
+            }
+        } else {
+            TokenStream::new()
+        };
 
     let mut before_struct = TokenStream::new();
     let original_struct = TokenStream::from(stream.clone());
@@ -310,7 +337,7 @@ pub fn worlder(
                             )
                         })
                 } else if &browser == "firefox" {
-                    Self::__check_firefox_concurrency_cli_option();
+                    #check_concurrency_cli_option_when_firefox;
                     let mut caps = thirtyfour::DesiredCapabilities::firefox();
                     if headless {
                         caps.set_headless().unwrap_or_else(|err| {
@@ -446,5 +473,35 @@ pub fn worlder(
     proc_macro::TokenStream::from(ret)
 }
 
-#[cfg(test)]
-mod tests;
+#[derive(Debug)]
+struct WorlderArgs {
+    check_concurrency_cli_option_when_firefox: bool,
+}
+
+impl Default for WorlderArgs {
+    fn default() -> Self {
+        Self {
+            check_concurrency_cli_option_when_firefox: true,
+        }
+    }
+}
+
+impl Parse for WorlderArgs {
+    fn parse(input: ParseStream) -> syn::parse::Result<Self> {
+        let mut args = WorlderArgs::default();
+        while !input.is_empty() {
+            let ident: syn::Ident = input.parse()?;
+            if ident == "check_concurrency_cli_option_when_firefox" {
+                input.parse::<syn::Token![=]>()?;
+                let value: syn::LitBool = input.parse()?;
+                args.check_concurrency_cli_option_when_firefox = value.value;
+            } else {
+                return Err(input.error(format!("Unknown argument: {ident}")));
+            }
+            if !input.is_empty() {
+                input.parse::<syn::Token![,]>()?;
+            }
+        }
+        Ok(args)
+    }
+}

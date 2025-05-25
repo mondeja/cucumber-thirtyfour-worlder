@@ -15,5 +15,5 @@ use cucumber_thirtyfour_worlder::worlder;
 /// ```
 ///
 /// [worlder]: https://docs.rs/cucumber-thirtyfour-worlder/latest/cucumber_thirtyfour_worlder/attr.worlder.html
-#[worlder]
+#[worlder(check_concurrency_cli_option_when_firefox = true)]
 pub struct AppWorld;
