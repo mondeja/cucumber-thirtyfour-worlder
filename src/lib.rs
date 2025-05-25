@@ -409,7 +409,9 @@ pub fn worlder(
 
                 let mut reading_arg = false;
                 let mut found = false;
-                for arg in std::env::args() {
+                let args = std::env::args();
+                println!("Args: {:?}", args);
+                for arg in args {
                     if arg == "--concurrency" || arg == "-c" {
                         reading_arg = true;
                     } else if arg.starts_with("--concurrency=")
