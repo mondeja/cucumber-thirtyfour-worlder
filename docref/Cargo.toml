@@ -9,6 +9,3 @@ license = "MIT"
 cucumber = "0.21"
 thirtyfour = "0.35"
 cucumber-thirtyfour-worlder = { path = ".." }
-
-[package.metadata.cargo-machete]
-ignored = ["thirtyfour", "cucumber"]

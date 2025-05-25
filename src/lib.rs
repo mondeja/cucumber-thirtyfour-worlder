@@ -142,6 +142,8 @@ pub fn worlder(
         } else {
             TokenStream::new()
         };
+    let cucumber = args.cucumber;
+    let thirtyfour = args.thirtyfour;
 
     let mut before_struct = TokenStream::new();
     let original_struct = TokenStream::from(stream.clone());
@@ -237,15 +239,11 @@ pub fn worlder(
     };
 
     let ret = quote! {
-        extern crate cucumber;
-        extern crate thirtyfour;
-        use thirtyfour::prelude::*;
-
         #before_struct
-        #[derive(Debug, ::cucumber::World)]
+        #[derive(Debug, #cucumber::World)]
         #[world(init = Self::new)]
         #vis_ident #struct_ident #struct_name_ident {
-            driver: thirtyfour::WebDriver,
+            driver: #thirtyfour::WebDriver,
             driver_url: String,
             host_url: String,
             headless: bool,
@@ -260,7 +258,7 @@ pub fn worlder(
 
             #[doc = r" Get the driver of the world"]
             #[must_use]
-            pub fn driver(&self) -> &thirtyfour::WebDriver {
+            pub fn driver(&self) -> &#thirtyfour::WebDriver {
                 &self.driver
             }
 
@@ -297,7 +295,7 @@ pub fn worlder(
             }
 
             #[doc = r" Navigate to the given path inside the host"]
-            pub async fn goto_path(&self, path: &str) -> Result<&Self, WebDriverError> {
+            pub async fn goto_path(&self, path: &str) -> Result<&Self, #thirtyfour::error::WebDriverError> {
                 let url = format!("{}{}", self.host_url(), path);
                 if let Err(err) = self.driver().goto(&url).await {
                     Err(err)
@@ -318,17 +316,21 @@ pub fn worlder(
                 );
 
                 let driver = if &browser == "chrome" {
-                    let mut caps = thirtyfour::DesiredCapabilities::chrome();
+                    let mut caps = #thirtyfour::DesiredCapabilities::chrome();
                     let mut opts =
                         vec!["--no-sandbox", &window_size_opt];
                     if headless {
                         opts.push("--headless");
                     }
-                    caps.insert_browser_option("args", opts)
+                    <#thirtyfour::ChromeCapabilities
+                        as
+                    #thirtyfour::BrowserCapabilitiesHelper>::insert_browser_option(
+                        &mut caps, "args", opts
+                    )
                         .unwrap_or_else(|err| {
                             panic!("Failed to set Chrome options: {err}");
                         });
-                    thirtyfour::WebDriver::new(&driver_url, caps)
+                    #thirtyfour::WebDriver::new(&driver_url, caps)
                         .await
                         .unwrap_or_else(|err| {
                             panic!(
@@ -338,7 +340,7 @@ pub fn worlder(
                         })
                 } else if &browser == "firefox" {
                     #check_concurrency_cli_option_when_firefox;
-                    let mut caps = thirtyfour::DesiredCapabilities::firefox();
+                    let mut caps = #thirtyfour::DesiredCapabilities::firefox();
                     if headless {
                         caps.set_headless().unwrap_or_else(|err| {
                             panic!("Failed to set Firefox headless mode: {err}");
@@ -348,24 +350,26 @@ pub fn worlder(
                         .unwrap_or_else(|err| {
                             panic!("Failed to set Firefox window size: {err}");
                         });
-                    thirtyfour::WebDriver::new(&driver_url, caps).await.unwrap_or_else(|err| {
+                    #thirtyfour::WebDriver::new(&driver_url, caps).await.unwrap_or_else(|err| {
                         panic!(
                             "Failed to create WebDriver for Firefox: {err}. \
                             Make sure that geckodriver server is running at {driver_url}",
                         )
                     })
                 } else if &browser == "edge" {
-                    let mut caps = thirtyfour::DesiredCapabilities::edge();
+                    let mut caps = #thirtyfour::DesiredCapabilities::edge();
                     let mut opts =
                         vec!["--no-sandbox", &window_size_opt];
                     if headless {
                         opts.push("--headless");
                     }
-                    caps.insert_browser_option("args", opts)
+                    <#thirtyfour::EdgeCapabilities
+                        as
+                    #thirtyfour::BrowserCapabilitiesHelper>::insert_browser_option(&mut caps, "args", opts)
                         .unwrap_or_else(|err| {
                             panic!("Failed to set Edge options: {err}");
                         });
-                    thirtyfour::WebDriver::new(&driver_url, caps).await.unwrap_or_else(|err| {
+                    #thirtyfour::WebDriver::new(&driver_url, caps).await.unwrap_or_else(|err| {
                         panic!(
                             "Failed to create WebDriver for Edge: {err}. \
                             Make sure that edgedriver server is running at {driver_url}",
@@ -473,15 +477,18 @@ pub fn worlder(
     proc_macro::TokenStream::from(ret)
 }
 
-#[derive(Debug)]
 struct WorlderArgs {
     check_concurrency_cli_option_when_firefox: bool,
+    cucumber: syn::Path,
+    thirtyfour: syn::Path,
 }
 
 impl Default for WorlderArgs {
     fn default() -> Self {
         Self {
             check_concurrency_cli_option_when_firefox: true,
+            cucumber: syn::parse_str::<syn::Path>("::cucumber").unwrap(),
+            thirtyfour: syn::parse_str::<syn::Path>("::thirtyfour").unwrap(),
         }
     }
 }
@@ -495,6 +502,12 @@ impl Parse for WorlderArgs {
                 input.parse::<syn::Token![=]>()?;
                 let value: syn::LitBool = input.parse()?;
                 args.check_concurrency_cli_option_when_firefox = value.value;
+            } else if ident == "cucumber" {
+                input.parse::<syn::Token![=]>()?;
+                args.cucumber = input.parse()?;
+            } else if ident == "thirtyfour" {
+                input.parse::<syn::Token![=]>()?;
+                args.thirtyfour = input.parse()?;
             } else {
                 return Err(input.error(format!("Unknown argument: {ident}")));
             }
