@@ -427,11 +427,11 @@ pub fn worlder(
                         found = true;
                         break;
                     } else if reading_arg {
-                        found = true;
                         let value = arg.parse::<u32>();
                         if value.is_ok() && value.unwrap() != 1 {
                             lets_panic();
                         }
+                        found = true;
                         break;
                     }
                 }
