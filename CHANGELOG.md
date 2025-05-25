@@ -1,5 +1,11 @@
 # Changelog
 
+## 2025-05-25 - [0.1.3]
+
+### Bug fixes
+
+- Fix error checking concurrency when using geckodriver.
+
 ## 2025-05-24 - [0.1.2]
 
 ### Bug fixes
@@ -11,4 +17,5 @@
 
 Initial release
 
-[0.1.2]: https://github.com/mondeja/cucumber-thirtyfour-worlder/compare/v0.1.0...v0.0.1.2
+[0.1.3]: https://github.com/mondeja/cucumber-thirtyfour-worlder/compare/v0.1.2...v0.1.3
+[0.1.2]: https://github.com/mondeja/cucumber-thirtyfour-worlder/compare/v0.1.0...v0.1.2

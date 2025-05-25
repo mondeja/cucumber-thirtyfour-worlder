@@ -410,7 +410,6 @@ pub fn worlder(
                 let mut reading_arg = false;
                 let mut found = false;
                 let args = std::env::args();
-                println!("Args: {:?}", args);
                 for arg in args {
                     if arg == "--concurrency" || arg == "-c" {
                         reading_arg = true;
@@ -425,6 +424,7 @@ pub fn worlder(
                         if value.is_ok() && value.unwrap() != 1 {
                             lets_panic();
                         }
+                        found = true;
                         break;
                     } else if reading_arg {
                         found = true;
