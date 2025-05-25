@@ -1,14 +1,14 @@
 [package]
 name = "cucumber-thirtyfour-worlder-docref"
 description = "Reference for documentation of cucumber-thirtyfour-worlder."
-version = "0.1.3"
+version = "0.1.4"
 edition = "2024"
 license = "MIT"
 
 [dependencies]
 cucumber = "0.21"
 thirtyfour = "0.35"
-cucumber-thirtyfour-worlder = "0.1.2"
+cucumber-thirtyfour-worlder = { path = ".." }
 
 [package.metadata.cargo-machete]
 ignored = ["thirtyfour", "cucumber"]
