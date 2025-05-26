@@ -134,13 +134,14 @@ pub fn worlder(
     }
 
     let args = parse_macro_input!(args as WorlderArgs);
-    let check_concurrency_cli_option_when_firefox =
+    let (check_concurrency_cli_option_when_firefox, check_concurrency_cli_option_when_firefox_fn) =
         if args.check_concurrency_cli_option_when_firefox {
-            quote! {
-                Self::__check_firefox_concurrency_cli_option();
-            }
+            (
+                quote!(Self::__check_firefox_concurrency_cli_option()),
+                build_check_concurrency_cli_option_when_firefox_fn(),
+            )
         } else {
-            TokenStream::new()
+            (TokenStream::new(), TokenStream::new())
         };
     let cucumber = args.cucumber;
     let thirtyfour = args.thirtyfour;
@@ -256,45 +257,45 @@ pub fn worlder(
                 Self::__build_driver().await
             }
 
-            #[doc = r" Get the driver of the world"]
+            #[doc = "Get the driver of the world."]
             #[must_use]
             pub fn driver(&self) -> &#thirtyfour::WebDriver {
                 &self.driver
             }
 
-            #[doc = r" Get the driver URL of the world"]
-            #[doc = r" "]
-            #[doc = r" It's defined by the `DRIVER_URL` environment variable, which defaults to `http://localhost:4444`."]
+            #[doc = "Get the driver URL of the world."]
+            #[doc = ""]
+            #[doc = "It's defined by the `DRIVER_URL` environment variable, which defaults to `\"http://localhost:4444\"`."]
             #[must_use]
             pub fn driver_url(&self) -> &str {
                 &self.driver_url
             }
 
-            #[doc = r" Get the host URL of the world"]
-            #[doc = r" "]
-            #[doc = r" It's defined by the `HOST_URL` environment variable, which defaults to `http://localhost:8080`."]
+            #[doc = "Get the host URL of the world."]
+            #[doc = ""]
+            #[doc = "It's defined by the `HOST_URL` environment variable, which defaults to `\"http://localhost:8080\"`."]
             #[must_use]
             pub fn host_url(&self) -> &str {
                 &self.host_url
             }
 
-            #[doc = r" Get the headless mode of the world"]
-            #[doc = r" "]
-            #[doc = r" It's defined by the `HEADLESS` environment variable, which defaults to `true`."]
+            #[doc = "Get the headless mode of the world."]
+            #[doc = ""]
+            #[doc = "It's defined by the `HEADLESS` environment variable, which defaults to `true`."]
             #[must_use]
             pub fn headless(&self) -> bool {
                 self.headless
             }
 
-            #[doc = r" Get the window size of the world"]
-            #[doc = r" "]
-            #[doc = r" It's defined by the `WINDOW_SIZE` environment variable, which defaults to `1920x1080`."]
+            #[doc = "Get the window size of the world."]
+            #[doc = ""]
+            #[doc = "It's defined by the `WINDOW_SIZE` environment variable, which defaults to `\"1920x1080\"`."]
             #[must_use]
             pub fn window_size(&self) -> (u32, u32) {
                 self.window_size
             }
 
-            #[doc = r" Navigate to the given path inside the host"]
+            #[doc = "Navigate to the given path inside the host."]
             pub async fn goto_path(&self, path: &str) -> Result<&Self, #thirtyfour::error::WebDriverError> {
                 let url = format!("{}{}", self.host_url(), path);
                 if let Err(err) = self.driver().goto(&url).await {
@@ -394,8 +395,11 @@ pub fn worlder(
 
             fn __discover_browser() -> String {
                 std::env::var("BROWSER").unwrap_or_else(|_| {
-                    panic!("BROWSER environment variable is not set. \
-                    Supported browsers are: chrome, firefox, edge.")
+                    panic!(
+                        "BROWSER environment variable is not set. \
+                         Supported browsers are: \"chrome\", \"firefox\" \
+                         and \"edge\"."
+                    )
                 })
             }
 
@@ -415,66 +419,84 @@ pub fn worlder(
                 let window_size = std::env::var("WINDOW_SIZE").unwrap_or("1920x1080".to_string());
                 let mut parts = window_size.split('x');
                 let width = parts.next().unwrap_or_else(|| {
-                    panic!("Invalid WINDOW_SIZE environment variable format. Expected format: WIDTHxHEIGHT");
+                    panic!(
+                        "Invalid WINDOW_SIZE environment variable format. \
+                        Expected format: WIDTHxHEIGHT"
+                    );
                 }).parse::<u32>().unwrap_or_else(|_| {
-                    panic!("Invalid WINDOW_SIZE environment variable format. Expected format: WIDTHxHEIGHT");
+                    panic!(
+                        "Invalid WINDOW_SIZE environment variable format. \
+                        Expected format: WIDTHxHEIGHT"
+                    );
                 });
                 let height = parts.next().unwrap_or_else(|| {
-                    panic!("Invalid WINDOW_SIZE environment variable format. Expected format: WIDTHxHEIGHT");
+                    panic!(
+                        "Invalid WINDOW_SIZE environment variable format. \
+                        Expected format: WIDTHxHEIGHT"
+                    );
                 }).parse::<u32>().unwrap_or_else(|_| {
-                    panic!("Invalid WINDOW_SIZE environment variable format. Expected format: WIDTHxHEIGHT");
+                    panic!(
+                        "Invalid WINDOW_SIZE environment variable format. \
+                        Expected format: WIDTHxHEIGHT"
+                    );
                 });
                 (width, height)
             }
 
-            fn __check_firefox_concurrency_cli_option() {
-                let lets_panic = || {
-                    panic!(
-                        "The driver geckodriver requires --concurrency or -c \
-                        option to be set to 1 because geckodriver does not allows \
-                        multiple sessions in parallel. Pass --concurrency=1 or -c 1 \
-                        to the test command, like \
-                        `cargo test --test <test-name> -- --concurrency=1`."
-                    )
-                };
-
-                let mut reading_arg = false;
-                let mut found = false;
-                let args = std::env::args();
-                for arg in args {
-                    if arg == "--concurrency" || arg == "-c" {
-                        reading_arg = true;
-                    } else if arg.starts_with("--concurrency=")
-                        || arg.starts_with("-c=")
-                    {
-                        let value = arg
-                            .split('=')
-                            .nth(1)
-                            .unwrap_or_else(|| panic!("Invalid argument: {arg}"));
-                        let value = value.parse::<u32>();
-                        if value.is_ok() && value.unwrap() != 1 {
-                            lets_panic();
-                        }
-                        found = true;
-                        break;
-                    } else if reading_arg {
-                        let value = arg.parse::<u32>();
-                        if value.is_ok() && value.unwrap() != 1 {
-                            lets_panic();
-                        }
-                        found = true;
-                        break;
-                    }
-                }
-
-                if !found {
-                    lets_panic();
-                }
-            }
+            #check_concurrency_cli_option_when_firefox_fn
         }
     };
 
     proc_macro::TokenStream::from(ret)
+}
+
+fn build_check_concurrency_cli_option_when_firefox_fn() -> TokenStream {
+    quote! {
+        fn __check_firefox_concurrency_cli_option() {
+            let lets_panic = || {
+                panic!(
+                    "The driver geckodriver requires --concurrency or -c \
+                    option to be set to 1 because geckodriver does not allows \
+                    multiple sessions in parallel. Pass --concurrency=1 or -c 1 \
+                    to the test command, like \
+                    `cargo test --test <test-name> -- --concurrency=1`."
+                )
+            };
+
+            let mut reading_arg = false;
+            let mut found = false;
+            let args = std::env::args();
+            for arg in args {
+                if arg == "--concurrency" || arg == "-c" {
+                    reading_arg = true;
+                } else if arg.starts_with("--concurrency=")
+                    || arg.starts_with("-c=")
+                {
+                    let value = arg
+                        .split('=')
+                        .nth(1)
+                        .unwrap_or_else(|| panic!("Invalid argument: {arg}"));
+                    let value = value.parse::<u32>();
+                    if value.is_ok() && value.unwrap() != 1 {
+                        lets_panic();
+                    }
+                    found = true;
+                    break;
+                } else if reading_arg {
+                    let value = arg.parse::<u32>();
+                    if value.is_ok() && value.unwrap() != 1 {
+                        lets_panic();
+                    }
+                    found = true;
+                    break;
+                }
+            }
+
+            if !found {
+                lets_panic();
+            }
+        }
+    }
 }
 
 struct WorlderArgs {

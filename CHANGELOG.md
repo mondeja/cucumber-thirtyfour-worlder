@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased - 0.1.5
+
+### Enhancements
+
+- Don't render unused code with `#[worlder]` macro.
+
 ## 2025-05-26 - [0.1.4]
 
 ### New features
