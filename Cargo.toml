@@ -1,7 +1,7 @@
 [package]
 name = "cucumber-thirtyfour-worlder"
 description = "World builder with sensible defaults for cucumber integration with thirtyfour."
-version = "0.1.4"
+version = "0.1.5"
 edition = "2024"
 license = "MIT"
 

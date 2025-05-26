@@ -347,7 +347,7 @@ dependencies = [
 
 [[package]]
 name = "cucumber-thirtyfour-worlder"
-version = "0.1.4"
+version = "0.1.5"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -356,7 +356,7 @@ dependencies = [
 
 [[package]]
 name = "cucumber-thirtyfour-worlder-docref"
-version = "0.1.4"
+version = "0.1.5"
 dependencies = [
  "cucumber",
  "cucumber-thirtyfour-worlder",
