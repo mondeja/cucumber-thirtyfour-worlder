@@ -1,10 +1,13 @@
 # Changelog
 
-## Unreleased - 0.1.5
+## 2025-05-27 - [0.1.5]
 
 ### Enhancements
 
 - Don't render unused code with `#[worlder]` macro.
+- Explicitly set window size with [`set_window_rect`] when running Firefox.
+
+[`set_window_rect`]: https://docs.rs/thirtyfour/0.35.0/thirtyfour/session/handle/struct.SessionHandle.html#method.set_window_rect
 
 ## 2025-05-26 - [0.1.4]
 
@@ -38,6 +41,7 @@
 
 Initial release
 
+[0.1.5]: https://github.com/mondeja/cucumber-thirtyfour-worlder/compare/v0.1.4...v0.1.5
 [0.1.4]: https://github.com/mondeja/cucumber-thirtyfour-worlder/compare/v0.1.3...v0.1.4
 [0.1.3]: https://github.com/mondeja/cucumber-thirtyfour-worlder/compare/v0.1.2...v0.1.3
 [0.1.2]: https://github.com/mondeja/cucumber-thirtyfour-worlder/compare/v0.1.0...v0.1.2

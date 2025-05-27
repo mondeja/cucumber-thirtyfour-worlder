@@ -312,14 +312,12 @@ pub fn worlder(
                 let headless = Self::__discover_headless();
                 let (window_width, window_height) = Self::__discover_window_size();
 
-                let window_size_opt = format!(
-                    "--window-size={window_width},{window_height}",
-                );
-
                 let driver = if &browser == "chrome" {
                     let mut caps = #thirtyfour::DesiredCapabilities::chrome();
-                    let mut opts =
-                        vec!["--no-sandbox", &window_size_opt];
+                    let window_size_opt = format!(
+                        "--window-size={window_width},{window_height}",
+                    );
+                    let mut opts = vec!["--no-sandbox", &window_size_opt];
                     if headless {
                         opts.push("--headless");
                     }
@@ -347,20 +345,24 @@ pub fn worlder(
                             panic!("Failed to set Firefox headless mode: {err}");
                         });
                     }
-                    caps.add_arg(window_size_opt.as_str())
-                        .unwrap_or_else(|err| {
-                            panic!("Failed to set Firefox window size: {err}");
-                        });
-                    #thirtyfour::WebDriver::new(&driver_url, caps).await.unwrap_or_else(|err| {
+                    let driver = #thirtyfour::WebDriver::new(&driver_url, caps).await.unwrap_or_else(|err| {
                         panic!(
                             "Failed to create WebDriver for Firefox: {err}. \
                             Make sure that geckodriver server is running at {driver_url}",
                         )
-                    })
+                    });
+                    // Firefox loads the window dimensions of the last session,
+                    // so we need to set the window size explicitly.
+                    driver.set_window_rect(0, 0, window_width, window_height)
+                        .await
+                        .expect("Failed to set window size to {width}x{height}");
+                    driver
                 } else if &browser == "edge" {
                     let mut caps = #thirtyfour::DesiredCapabilities::edge();
-                    let mut opts =
-                        vec!["--no-sandbox", &window_size_opt];
+                    let window_size_opt = format!(
+                        "--window-size={window_width},{window_height}",
+                    );
+                    let mut opts = vec!["--no-sandbox", &window_size_opt];
                     if headless {
                         opts.push("--headless");
                     }
