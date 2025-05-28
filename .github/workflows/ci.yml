@@ -120,8 +120,6 @@ jobs:
         uses: mondeja/get-current-crate-version@main
         with:
           working-directory: docref
-      - name: Debug
-        run: ls -la
       - name: Update version
         uses: mondeja/starts-with-line-replacer@main
         with:
