@@ -25,7 +25,7 @@ parametrize them.
 - `WINDOW_SIZE`: size of the browser window. The default is `1920x1080`.
 - `HOST_URL`: base URL of the application under test. The default is
   `http://localhost:8080`.
-- `DRIVER_URL`: the URL of the WebDriver server. The default is
+- `DRIVER_URL`: the URL of the `WebDriver` server. The default is
   `http://localhost:4444`.
 
 ## Usage

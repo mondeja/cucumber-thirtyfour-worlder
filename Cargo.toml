@@ -1,7 +1,7 @@
 [package]
 name = "cucumber-thirtyfour-worlder"
 description = "World builder with sensible defaults for cucumber integration with thirtyfour."
-version = "0.1.5"
+version = "0.1.6"
 edition = "2024"
 license = "MIT"
 
@@ -16,3 +16,16 @@ syn = { version = "2", features = ["parsing"] }
 
 [workspace]
 members = [".", "docref"]
+
+[lints]
+workspace = true
+
+[workspace.lints.rust]
+warnings = "deny"
+
+[workspace.lints.clippy]
+pedantic = { level = "deny", priority = -1 }
+perf = { level = "deny", priority = -1 }
+print_stdout = "deny"
+missing-panics-doc = "allow"
+too_many_lines = "allow"

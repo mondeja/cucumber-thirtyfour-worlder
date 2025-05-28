@@ -18,7 +18,7 @@
 //! - `WINDOW_SIZE`: size of the browser window. The default is `1920x1080`.
 //! - `HOST_URL`: base URL of the application under test. The default is
 //!   `http://localhost:8080`.
-//! - `DRIVER_URL`: the URL of the WebDriver server. The default is
+//! - `DRIVER_URL`: the URL of the `WebDriver` server. The default is
 //!   `http://localhost:4444`.
 //!
 //! # Usage
@@ -101,8 +101,6 @@
 #[cfg(test)]
 mod tests;
 
-use core::panic;
-
 use proc_macro2::{TokenStream, TokenTree};
 use quote::quote;
 use syn::{
@@ -129,9 +127,10 @@ pub fn worlder(
     args: proc_macro::TokenStream,
     stream: proc_macro::TokenStream,
 ) -> proc_macro::TokenStream {
-    if stream.is_empty() {
-        panic!("#[worlder] macro requires a struct to be passed");
-    }
+    assert!(
+        !stream.is_empty(),
+        "#[worlder] macro requires a struct to be passed"
+    );
 
     let args = parse_macro_input!(args as WorlderArgs);
     let (check_concurrency_cli_option_when_firefox, check_concurrency_cli_option_when_firefox_fn) =
@@ -219,11 +218,10 @@ pub fn worlder(
         (false, false)
     };
 
-    if !valid {
-        panic!(
-            "#[worlder] macro requires a token stream like `pub struct AppWorld;` or `struct AppWorld;`"
-        );
-    }
+    assert!(
+        valid,
+        "#[worlder] macro requires a token stream like `pub struct AppWorld;` or `struct AppWorld;`"
+    );
 
     let (vis_ident, struct_ident, struct_name_ident) = if with_vis {
         (

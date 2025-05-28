@@ -1,7 +1,7 @@
 [package]
 name = "cucumber-thirtyfour-worlder-docref"
 description = "Reference for documentation of cucumber-thirtyfour-worlder."
-version = "0.1.5"
+version = "0.1.6"
 edition = "2024"
 license = "MIT"
 
@@ -9,3 +9,6 @@ license = "MIT"
 cucumber = "0.21"
 thirtyfour = "0.35"
 cucumber-thirtyfour-worlder = { path = ".." }
+
+[lints]
+workspace = true
