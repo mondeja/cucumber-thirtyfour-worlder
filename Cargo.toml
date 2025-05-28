@@ -16,3 +16,16 @@ syn = { version = "2", features = ["parsing"] }
 
 [workspace]
 members = [".", "docref"]
+
+[lints]
+workspace = true
+
+[workspace.lints.rust]
+warnings = "deny"
+
+[workspace.lints.clippy]
+pedantic = { level = "deny", priority = -1 }
+perf = { level = "deny", priority = -1 }
+print_stdout = "deny"
+missing-panics-doc = "allow"
+too_many_lines = "allow"

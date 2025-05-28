@@ -9,3 +9,6 @@ license = "MIT"
 cucumber = "0.21"
 thirtyfour = "0.35"
 cucumber-thirtyfour-worlder = { path = ".." }
+
+[lints]
+workspace = true

@@ -26,26 +26,6 @@ repos:
       - id: fmt
       - id: cargo-check
       - id: clippy
-        alias: clippy-no-features
-        name: clippy-no-features
-        args:
-          [
-            --,
-            -D,
-            warnings,
-            -D,
-            clippy::perf,
-            -D,
-            clippy::print_stdout,
-            -D,
-            clippy::explicit_iter_loop,
-            -D,
-            clippy::uninlined_format_args,
-            -D,
-            clippy::semicolon_if_nothing_returned,
-            -A,
-            deprecated,
-          ]
   - repo: https://github.com/mondeja/rust-pc-hooks
     rev: v1.3.0
     hooks:
