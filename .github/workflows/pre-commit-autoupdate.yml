@@ -21,9 +21,7 @@ jobs:
       - name: Install pre-commit
         run: pip install pre-commit
       - name: Run pre-commit autoupdate
-        run: |
-          pre-commit autoupdate
-          pre-commit autoupdate --config end2end/.pre-commit-config.yaml
+        run: pre-commit autoupdate
       - name: Open pull request
         uses: peter-evans/create-pull-request@v5
         with:
