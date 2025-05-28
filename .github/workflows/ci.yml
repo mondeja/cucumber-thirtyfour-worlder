@@ -118,6 +118,8 @@ jobs:
       - name: Get project version
         id: get-version
         uses: mondeja/get-current-crate-version@main
+        with:
+          working-directory: docref
       - name: Debug
         run: ls -la
       - name: Update version
