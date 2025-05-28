@@ -100,7 +100,7 @@ jobs:
         with:
           rust-version: stable
           profile: minimal
-      - name: Publish
+      - name: Publish (dry run)
         run: |
           cargo login ${{ secrets.CRATES_TOKEN }}
           cargo publish -v --dry-run
@@ -118,6 +118,8 @@ jobs:
       - name: Get project version
         id: get-version
         uses: mondeja/get-current-crate-version@main
+      - name: Debug
+        run: ls -la
       - name: Update version
         uses: mondeja/starts-with-line-replacer@main
         with:
