@@ -1,4 +1,5 @@
 use cucumber;
+use serde_json;
 use thirtyfour;
 
 /// Example of a struct for a world derived with the [`#[worlder]`][worlder] macro.
@@ -20,5 +21,6 @@ use thirtyfour;
     check_concurrency_cli_option_when_firefox = true,
     cucumber = cucumber,
     thirtyfour = thirtyfour,
+    serde_json = serde_json,
 )]
 pub struct AppWorld;

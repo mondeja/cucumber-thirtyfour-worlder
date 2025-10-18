@@ -27,6 +27,8 @@ parametrize them.
   `http://localhost:8080`.
 - `DRIVER_URL`: the URL of the `WebDriver` server. The default is
   `http://localhost:4444`.
+- `DOWNLOADS_DIR`: directory where files downloaded by the browser.
+  The default is a random temporary directory.
 
 ## Usage
 
@@ -36,7 +38,7 @@ Create a crate and add the following dependencies to your `Cargo.toml`.
 [dependencies]
 cucumber = "0.21"
 thirtyfour = "0.35"
-cucumber-thirtyfour-worlder = "0.1"
+cucumber-thirtyfour-worlder = "0.2"
 ```
 
 Inside, create your [`AppWorld`][appworld-reference] struct and pass

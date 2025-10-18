@@ -1,5 +1,19 @@
 # Changelog
 
+## 2025-10-18 - [0.2.0]
+
+### Breaking changes
+
+- Requires the dependency `serde_json` to be installed in the scope of the
+  `#[worlder]` macro call site.
+
+### New features
+
+- Add support for configuring a downloads directory with `DOWNLOADS_DIR`
+  environment variable, and set a random temporary directory by default.
+- Added `serde_json` as an argument to the `#[worlder]` macro to allow passing an
+  in-scope `serde_json` crate.
+
 ## 2025-05-27 - [0.1.5]
 
 ### Enhancements
@@ -41,6 +55,7 @@
 
 Initial release
 
+[0.2.0]: https://github.com/mondeja/cucumber-thirtyfour-worlder/compare/v0.1.5...v0.2.0
 [0.1.5]: https://github.com/mondeja/cucumber-thirtyfour-worlder/compare/v0.1.4...v0.1.5
 [0.1.4]: https://github.com/mondeja/cucumber-thirtyfour-worlder/compare/v0.1.3...v0.1.4
 [0.1.3]: https://github.com/mondeja/cucumber-thirtyfour-worlder/compare/v0.1.2...v0.1.3
