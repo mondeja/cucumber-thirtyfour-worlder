@@ -202,6 +202,6 @@ jobs:
           name: ${{ steps.tag.outputs.title }}
           tag_name: ${{ steps.tag.outputs.title }}
           body: |
-            See [CHANGELOG](https://github.com/mondeja/cucumber-thirtyfour-worlder/blob/master/CHANGELOG.md).
+            See [CHANGELOG](https://github.com/mondeja/cucumber-thirtyfour-worlder/blob/master/CHANGELOG.md)
           draft: false
           prerelease: false
