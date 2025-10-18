@@ -6,6 +6,8 @@
 
 - Add support for configuring a downloads directory with `DOWNLOADS_DIR`
   environment variable, and set a random temporary directory by default.
+  Requires the dependency `serde_json` to be installed in the scope of the
+  `#[worlder]` macro call site. Added `serde_json` as an argument to the macro.
 
 ## 2025-05-27 - [0.1.5]
 
