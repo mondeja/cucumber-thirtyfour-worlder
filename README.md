@@ -27,6 +27,8 @@ parametrize them.
   `http://localhost:8080`.
 - `DRIVER_URL`: the URL of the `WebDriver` server. The default is
   `http://localhost:4444`.
+- `DOWNLOADS_DIR`: directory where files downloaded by the browser.
+  The default is a random temporary directory.
 
 ## Usage
 
