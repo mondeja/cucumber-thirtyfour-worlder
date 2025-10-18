@@ -121,6 +121,7 @@ use syn::{
 ///   convenient argument.
 /// - ``cucumber`` (*path*, default `::cucumber`): path to the `cucumber` crate.
 /// - ``thirtyfour`` (*path*, default `::thirtyfour`): path to the `thirtyfour` crate.
+/// - ``serde_json`` (*path*, default `::serde_json`): path to the `serde_json` crate.
 ///
 /// See the reference of the created world [here][appworld-reference].
 ///
@@ -148,6 +149,7 @@ pub fn worlder(
         };
     let cucumber = args.cucumber;
     let thirtyfour = args.thirtyfour;
+    let serde_json = args.serde_json;
 
     let mut before_struct = TokenStream::new();
     let original_struct = TokenStream::from(stream.clone());
@@ -326,10 +328,10 @@ pub fn worlder(
 
                 let driver = if &browser == "chrome" {
                     let mut caps = #thirtyfour::DesiredCapabilities::chrome();
-                    let mut prefs = ::std::collections::HashMap::<String, serde_json::Value>::new();
+                    let mut prefs = ::std::collections::HashMap::<String, #serde_json::Value>::new();
                     prefs.insert(
                         "download.default_directory".to_string(),
-                        serde_json::Value::String(
+                        #serde_json::Value::String(
                             downloads_dir.clone(),
                         ),
                     );
@@ -367,35 +369,35 @@ pub fn worlder(
                 } else if &browser == "firefox" {
                     #check_concurrency_cli_option_when_firefox;
                     let mut caps = #thirtyfour::DesiredCapabilities::firefox();
-                    let mut prefs = ::std::collections::HashMap::<String, serde_json::Value>::new();
+                    let mut prefs = ::std::collections::HashMap::<String, #serde_json::Value>::new();
                     prefs.insert(
                         "browser.download.folderList".to_string(),
-                        serde_json::Value::Number(2.into())
+                        #serde_json::Value::Number(2.into())
                     );
                     prefs.insert(
                         "browser.download.dir".to_string(),
-                        serde_json::Value::String(
+                        #serde_json::Value::String(
                             downloads_dir.clone(),
                         ),
                     );
                     prefs.insert(
                         "browser.download.useDownloadDir".to_string(),
-                        serde_json::Value::Bool(true),
+                        #serde_json::Value::Bool(true),
                     );
                     prefs.insert(
                         "browser.download.manager.showWhenStarting".to_string(),
-                        serde_json::Value::Bool(false),
+                        #serde_json::Value::Bool(false),
                     );
                     prefs.insert(
                         "browser.helperApps.neverAsk.saveToDisk".to_string(),
-                        serde_json::Value::String(
+                        #serde_json::Value::String(
                             "application/octet-stream,application/pdf,image/png,image/jpeg,image/svg+xml,text/plain,text/csv,application/zip".to_string(),
                         ),
                     );
                     // disable the built-in PDF viewer
                     prefs.insert(
                         "pdfjs.disabled".to_string(),
-                        serde_json::Value::Bool(true),
+                        #serde_json::Value::Bool(true),
                     );
                     <#thirtyfour::FirefoxCapabilities
                         as
@@ -405,7 +407,6 @@ pub fn worlder(
                         .unwrap_or_else(|err| {
                             panic!("Failed to set Firefox prefs: {err}");
                         });
-
                     if headless {
                         caps.set_headless().unwrap_or_else(|err| {
                             panic!("Failed to set Firefox headless mode: {err}");
@@ -425,24 +426,24 @@ pub fn worlder(
                     driver
                 } else if &browser == "edge" {
                     let mut caps = #thirtyfour::DesiredCapabilities::edge();
-                    let mut prefs = ::std::collections::HashMap::<String, serde_json::Value>::new();
+                    let mut prefs = ::std::collections::HashMap::<String, #serde_json::Value>::new();
                     prefs.insert(
                         "download.default_directory".to_string(),
-                        serde_json::Value::String(
+                        #serde_json::Value::String(
                             downloads_dir.clone(),
                         ),
                     );
                     prefs.insert(
                         "download.prompt_for_download".to_string(),
-                        serde_json::Value::Bool(false),
+                        #serde_json::Value::Bool(false),
                     );
                     prefs.insert(
                         "download.directory_upgrade".to_string(),
-                        serde_json::Value::Bool(true),
+                        #serde_json::Value::Bool(true),
                     );
                     prefs.insert(
                         "safebrowsing.enabled".to_string(),
-                        serde_json::Value::Bool(true),
+                        #serde_json::Value::Bool(true),
                     );
                     <#thirtyfour::EdgeCapabilities
                         as
@@ -452,7 +453,6 @@ pub fn worlder(
                         .unwrap_or_else(|err| {
                             panic!("Failed to set Edge prefs: {err}");
                         });
-
                     let window_size_opt = format!(
                         "--window-size={window_width},{window_height}",
                     );
@@ -653,6 +653,7 @@ struct WorlderArgs {
     check_concurrency_cli_option_when_firefox: bool,
     cucumber: syn::Path,
     thirtyfour: syn::Path,
+    serde_json: syn::Path,
 }
 
 impl Default for WorlderArgs {
@@ -661,6 +662,7 @@ impl Default for WorlderArgs {
             check_concurrency_cli_option_when_firefox: true,
             cucumber: syn::parse_str::<syn::Path>("::cucumber").unwrap(),
             thirtyfour: syn::parse_str::<syn::Path>("::thirtyfour").unwrap(),
+            serde_json: syn::parse_str::<syn::Path>("::serde_json").unwrap(),
         }
     }
 }
@@ -680,6 +682,9 @@ impl Parse for WorlderArgs {
             } else if ident == "thirtyfour" {
                 input.parse::<syn::Token![=]>()?;
                 args.thirtyfour = input.parse()?;
+            } else if ident == "serde_json" {
+                input.parse::<syn::Token![=]>()?;
+                args.serde_json = input.parse()?;
             } else {
                 return Err(input.error(format!("Unknown argument: {ident}")));
             }
