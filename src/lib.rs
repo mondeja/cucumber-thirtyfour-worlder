@@ -20,6 +20,8 @@
 //!   `http://localhost:8080`.
 //! - `DRIVER_URL`: the URL of the `WebDriver` server. The default is
 //!   `http://localhost:4444`.
+//! - `DOWNLOADS_DIR`: directory where files downloaded by the browser.
+//!   The default is a random temporary directory.
 //!
 //! # Usage
 //!
@@ -117,6 +119,8 @@ use syn::{
 ///   to `1` invoking cucumber tests when using Firefox. Multiple sessions in parallel
 ///   are not allowed by geckodriver and this limitation is easy to forget, hence this
 ///   convenient argument.
+/// - ``cucumber`` (*path*, default `::cucumber`): path to the `cucumber` crate.
+/// - ``thirtyfour`` (*path*, default `::thirtyfour`): path to the `thirtyfour` crate.
 ///
 /// See the reference of the created world [here][appworld-reference].
 ///
@@ -247,6 +251,7 @@ pub fn worlder(
             host_url: String,
             headless: bool,
             window_size: (u32, u32),
+            downloads_dir: String,
         }
 
         impl #struct_name_ident {
@@ -293,6 +298,14 @@ pub fn worlder(
                 self.window_size
             }
 
+            #[doc = "Get the downloads directory of the world."]
+            #[doc = ""]
+            #[doc = "It's defined by the `DOWNLOADS_DIR` environment variable, which defaults to a random temporary directory."]
+            #[must_use]
+            pub fn downloads_dir(&self) -> &str {
+                &self.downloads_dir
+            }
+
             #[doc = "Navigate to the given path inside the host."]
             pub async fn goto_path(&self, path: &str) -> Result<&Self, #thirtyfour::error::WebDriverError> {
                 let url = format!("{}{}", self.host_url(), path);
@@ -308,10 +321,26 @@ pub fn worlder(
                 let driver_url = Self::__discover_driver_url();
                 let host_url = Self::__discover_host_url();
                 let headless = Self::__discover_headless();
+                let downloads_dir = Self::__discover_downloads_dir();
                 let (window_width, window_height) = Self::__discover_window_size();
 
                 let driver = if &browser == "chrome" {
                     let mut caps = #thirtyfour::DesiredCapabilities::chrome();
+                    let mut prefs = ::std::collections::HashMap::<String, serde_json::Value>::new();
+                    prefs.insert(
+                        "download.default_directory".to_string(),
+                        serde_json::Value::String(
+                            downloads_dir.clone(),
+                        ),
+                    );
+                    <#thirtyfour::ChromeCapabilities
+                        as
+                    #thirtyfour::BrowserCapabilitiesHelper>::insert_browser_option(
+                        &mut caps, "prefs", prefs,
+                    )
+                        .unwrap_or_else(|err| {
+                            panic!("Failed to set Chrome prefs: {err}");
+                        });
                     let window_size_opt = format!(
                         "--window-size={window_width},{window_height}",
                     );
@@ -338,6 +367,45 @@ pub fn worlder(
                 } else if &browser == "firefox" {
                     #check_concurrency_cli_option_when_firefox;
                     let mut caps = #thirtyfour::DesiredCapabilities::firefox();
+                    let mut prefs = ::std::collections::HashMap::<String, serde_json::Value>::new();
+                    prefs.insert(
+                        "browser.download.folderList".to_string(),
+                        serde_json::Value::Number(2.into())
+                    );
+                    prefs.insert(
+                        "browser.download.dir".to_string(),
+                        serde_json::Value::String(
+                            downloads_dir.clone(),
+                        ),
+                    );
+                    prefs.insert(
+                        "browser.download.useDownloadDir".to_string(),
+                        serde_json::Value::Bool(true),
+                    );
+                    prefs.insert(
+                        "browser.download.manager.showWhenStarting".to_string(),
+                        serde_json::Value::Bool(false),
+                    );
+                    prefs.insert(
+                        "browser.helperApps.neverAsk.saveToDisk".to_string(),
+                        serde_json::Value::String(
+                            "application/octet-stream,application/pdf,image/png,image/jpeg,image/svg+xml,text/plain,text/csv,application/zip".to_string(),
+                        ),
+                    );
+                    // disable the built-in PDF viewer
+                    prefs.insert(
+                        "pdfjs.disabled".to_string(),
+                        serde_json::Value::Bool(true),
+                    );
+                    <#thirtyfour::FirefoxCapabilities
+                        as
+                    #thirtyfour::BrowserCapabilitiesHelper>::insert_browser_option(
+                        &mut caps, "prefs", prefs,
+                    )
+                        .unwrap_or_else(|err| {
+                            panic!("Failed to set Firefox prefs: {err}");
+                        });
+
                     if headless {
                         caps.set_headless().unwrap_or_else(|err| {
                             panic!("Failed to set Firefox headless mode: {err}");
@@ -357,6 +425,34 @@ pub fn worlder(
                     driver
                 } else if &browser == "edge" {
                     let mut caps = #thirtyfour::DesiredCapabilities::edge();
+                    let mut prefs = ::std::collections::HashMap::<String, serde_json::Value>::new();
+                    prefs.insert(
+                        "download.default_directory".to_string(),
+                        serde_json::Value::String(
+                            downloads_dir.clone(),
+                        ),
+                    );
+                    prefs.insert(
+                        "download.prompt_for_download".to_string(),
+                        serde_json::Value::Bool(false),
+                    );
+                    prefs.insert(
+                        "download.directory_upgrade".to_string(),
+                        serde_json::Value::Bool(true),
+                    );
+                    prefs.insert(
+                        "safebrowsing.enabled".to_string(),
+                        serde_json::Value::Bool(true),
+                    );
+                    <#thirtyfour::EdgeCapabilities
+                        as
+                    #thirtyfour::BrowserCapabilitiesHelper>::insert_browser_option(
+                        &mut caps, "prefs", prefs,
+                    )
+                        .unwrap_or_else(|err| {
+                            panic!("Failed to set Edge prefs: {err}");
+                        });
+
                     let window_size_opt = format!(
                         "--window-size={window_width},{window_height}",
                     );
@@ -390,6 +486,7 @@ pub fn worlder(
                     host_url,
                     headless,
                     window_size: (window_width, window_height),
+                    downloads_dir,
                 }
             }
 
@@ -441,6 +538,59 @@ pub fn worlder(
                     );
                 });
                 (width, height)
+            }
+
+            fn __discover_downloads_dir() -> String {
+                if let Ok(dir) = std::env::var("DOWNLOADS_DIR") {
+                    let path = std::path::PathBuf::from(dir);
+                    if !path.exists() {
+                        std::fs::create_dir_all(&path).unwrap_or_else(|err| {
+                            panic!(
+                                "Failed to create downloads directory at {:?}: {err}",
+                                path,
+                            )
+                        });
+                    }
+                    if let Ok(canonical_path) = path.canonicalize() {
+                        return canonical_path.display().to_string();
+                    }
+                    panic!(
+                        "Failed to canonicalize downloads directory at {:?}",
+                        path,
+                    );
+                }
+
+                let generate_random_unique_directory = || -> String {
+                    let temp_dir = std::env::temp_dir();
+                    let base_path = std::path::PathBuf::from(std::env::temp_dir());
+
+                    for attempt in 0..u32::MAX {
+                        let nanos = std::time::SystemTime::now()
+                            .duration_since(std::time::UNIX_EPOCH)
+                            .unwrap()
+                            .as_nanos();
+
+                        let name = format!("dir_{nanos}_{attempt}");
+                        let path = base_path.join(name);
+
+                        if !path.exists() {
+                            let result = std::fs::create_dir_all(&path);
+                            if result.is_ok() {
+                                if let Ok(canonical_path) = path.canonicalize() {
+                                    return canonical_path.display().to_string();
+                                }
+                            }
+                        }
+                    }
+
+                    panic!(
+                        "Failed to generate a unique temporary directory to store downloads. \
+                        Set the environment variable DOWNLOADS_DIR to a valid directory path \
+                        to avoid this issue."
+                    );
+                };
+
+                generate_random_unique_directory()
             }
 
             #check_concurrency_cli_option_when_firefox_fn
