@@ -31,7 +31,7 @@
 //! [dependencies]
 //! cucumber = "0.21"
 //! thirtyfour = "0.35"
-//! cucumber-thirtyfour-worlder = "0.1"
+//! cucumber-thirtyfour-worlder = "0.2"
 //! ```
 //!
 //! Inside, create your [`AppWorld`][appworld-reference] struct and pass
